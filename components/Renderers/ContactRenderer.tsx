@@ -14,14 +14,29 @@ export const ContactRenderer: React.FC = () => {
 
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState(false);
+
+  const getMailtoUrl = () => {
+    const bodyText = `Name: ${formData.name}\nSender Email: ${formData.email}\n\nMessage:\n${formData.message}`;
+    return `mailto:${profileData.email}?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
+  };
+
+  const getGmailUrl = () => {
+    const bodyText = `Name: ${formData.name}\nSender Email: ${formData.email}\n\nMessage:\n${formData.message}`;
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profileData.email)}&su=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(bodyText)}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
     setStatus('sending');
     setTimeout(() => {
+      // Trigger native email client or redirect
+      window.location.href = getMailtoUrl();
       setStatus('sent');
-    }, 1200);
+    }, 600);
   };
 
   return (
@@ -108,21 +123,82 @@ export const ContactRenderer: React.FC = () => {
           </div>
 
           {status === 'sent' ? (
-            <div className="p-6 bg-[#0D1117] border border-[#3FB950]/50 rounded-xl text-center space-y-3">
-              <CheckCircle2 className="w-10 h-10 text-[#3FB950] mx-auto" />
-              <h3 className="text-base font-bold text-[#F0F6FC]">Message Sent Successfully!</h3>
-              <p className="text-xs text-[#8B949E] font-sans max-w-md mx-auto">
-                Thank you for reaching out. Your message has been dispatched to Ridho Febrian&apos;s inbox. Expect a reply shortly!
-              </p>
-              <button
-                onClick={() => {
-                  setStatus('idle');
-                  setFormData({ name: '', email: '', subject: 'IT Support / Network Engineering Opportunity', message: '' });
-                }}
-                className="px-4 py-1.5 bg-[#21262D] hover:bg-[#30363D] border border-[#30363D] text-[#58A6FF] rounded text-xs font-mono"
-              >
-                Send Another Message
-              </button>
+            <div className="p-6 bg-[#0D1117] border border-[#3FB950]/50 rounded-xl space-y-4 text-left">
+              <div className="flex items-center space-x-3">
+                <CheckCircle2 className="w-8 h-8 text-[#3FB950] shrink-0" />
+                <div>
+                  <h3 className="text-base font-bold text-[#F0F6FC]">Message Prepared & Mail Client Launched!</h3>
+                  <p className="text-xs text-[#8B949E]">
+                    Your message payload has been generated for <span className="text-[#58A6FF] font-bold">{profileData.email}</span>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Message Payload Summary Box */}
+              <div className="p-3 bg-[#161B22] border border-[#30363D] rounded-lg text-xs font-mono space-y-1.5 text-[#C9D1D9]">
+                <div><span className="text-[#8B949E]">To:</span> {profileData.email}</div>
+                <div><span className="text-[#8B949E]">From:</span> {formData.name} &lt;{formData.email}&gt;</div>
+                <div><span className="text-[#8B949E]">Subject:</span> {formData.subject}</div>
+                <div className="pt-2 border-t border-[#30363D] text-[#8B949E] text-[11px] whitespace-pre-wrap font-sans">
+                  {formData.message}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <a
+                  href={getMailtoUrl()}
+                  className="px-3 py-1.5 bg-[#238636] hover:bg-[#2ea043] text-white rounded text-xs font-mono flex items-center space-x-1.5 font-bold cursor-pointer"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Open Mail App (Mailto)</span>
+                </a>
+
+                <a
+                  href={getGmailUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-[#21262D] hover:bg-[#30363D] border border-[#30363D] text-[#58A6FF] rounded text-xs font-mono flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Compose in Gmail</span>
+                </a>
+
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(profileData.email);
+                    setCopiedEmail(true);
+                    setTimeout(() => setCopiedEmail(false), 2000);
+                  }}
+                  className="px-3 py-1.5 bg-[#21262D] hover:bg-[#30363D] border border-[#30363D] text-[#F0F6FC] rounded text-xs font-mono flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <span>{copiedEmail ? '✓ Email Copied!' : 'Copy Email Address'}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    const fullText = `To: ${profileData.email}\nSubject: ${formData.subject}\n\nFrom: ${formData.name} <${formData.email}>\n\n${formData.message}`;
+                    navigator.clipboard.writeText(fullText);
+                    setCopiedMessage(true);
+                    setTimeout(() => setCopiedMessage(false), 2000);
+                  }}
+                  className="px-3 py-1.5 bg-[#21262D] hover:bg-[#30363D] border border-[#30363D] text-[#F0F6FC] rounded text-xs font-mono flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <span>{copiedMessage ? '✓ Message Copied!' : 'Copy Full Message'}</span>
+                </button>
+              </div>
+
+              <div className="pt-2 border-t border-[#30363D] flex justify-between items-center">
+                <button
+                  onClick={() => {
+                    setStatus('idle');
+                    setFormData({ name: '', email: '', subject: 'IT Support / Network Engineering Opportunity', message: '' });
+                  }}
+                  className="text-xs text-[#8B949E] hover:text-[#58A6FF] underline font-mono cursor-pointer"
+                >
+                  ← Edit or Send Another Message
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3 font-mono">

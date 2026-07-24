@@ -9,6 +9,7 @@ interface ImageModalProps {
   alt: string;
   title?: string;
   caption?: string;
+  pdfUrl?: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -18,6 +19,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
   alt,
   title,
   caption,
+  pdfUrl,
   isOpen,
   onClose
 }) => {
@@ -86,20 +88,29 @@ export const ImageModal: React.FC<ImageModalProps> = ({
           </div>
 
           {/* Caption Footer */}
-          {caption && (
-            <div className="p-3 bg-[#0D1117] border-t border-[#30363D] font-mono text-xs text-[#8B949E] flex justify-between items-center">
-              <span>{caption}</span>
+          <div className="p-3 bg-[#0D1117] border-t border-[#30363D] font-mono text-xs text-[#8B949E] flex flex-wrap justify-between items-center gap-2">
+            <span>{caption || title || alt}</span>
+            <div className="flex items-center space-x-3">
+              {pdfUrl && (
+                <a 
+                  href={pdfUrl} 
+                  download
+                  className="px-2.5 py-1 bg-[#238636] hover:bg-[#2ea043] text-white rounded font-bold text-[11px] flex items-center space-x-1 transition-colors"
+                >
+                  <span>Download PDF</span>
+                </a>
+              )}
               <a 
                 href={src} 
                 target="_blank" 
                 rel="noreferrer"
                 className="flex items-center space-x-1 text-[#58A6FF] hover:underline"
               >
-                <span>Open Raw</span>
+                <span>Open Raw Image</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
-          )}
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

@@ -109,6 +109,7 @@ export const CertificatesRenderer: React.FC = () => {
           alt={activeCertModal.title}
           title={activeCertModal.title}
           caption={activeCertModal.caption}
+          pdfUrl={activeCertModal.pdfUrl}
           isOpen={!!activeCertModal}
           onClose={() => setActiveCertModal(null)}
         />
