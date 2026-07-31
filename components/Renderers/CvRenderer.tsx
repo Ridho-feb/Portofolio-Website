@@ -6,7 +6,7 @@ import { Download, ExternalLink, Maximize2, FileText, X, Eye } from 'lucide-reac
 export const CvRenderer: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewMode, setViewMode] = useState<'images' | 'pdf'>('images');
-  const pdfUrl = "/Ridho_Febrian_CV.pdf";
+  const pdfUrl = "/documents/Ridho_Febrian_CV.pdf";
   const pageImages = [
     "/documents/cv-page-1.png",
     "/documents/cv-page-2.png"
